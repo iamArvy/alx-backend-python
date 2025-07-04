@@ -1,9 +1,9 @@
-import sqlite3
+from seed import connect_to_prodev
 
 def stream_user_ages():
-    conn = sqlite3.connect('your_database.db')  # Replace with actual DB path
+    conn = connect_to_prodev()  # Replace with actual DB path
     cursor = conn.cursor()
-    cursor.execute('SELECT age FROM users')
+    cursor.execute('SELECT age FROM user_data')
 
     for row in cursor:
         yield row[0]  # assuming age is in the first (and only) column
@@ -23,3 +23,9 @@ def calculate_average_age():
         print(f"Average age of users: {average:.2f}")
     else:
         print("No users found.")
+
+def main():
+    calculate_average_age()
+
+if __name__ == '__main__':
+    main()

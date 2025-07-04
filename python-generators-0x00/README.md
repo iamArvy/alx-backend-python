@@ -1,4 +1,4 @@
-# ALX ProDev User Data Processing
+# ALX ProDev Python Generators
 
 This repository contains Python scripts for managing and processing user data stored in a MySQL database. It demonstrates the use of Python generators for memory-efficient data operations.
 
@@ -87,27 +87,21 @@ Charlie Ray,charlie@example.com,27
 
 * Python 3.x
 * MySQL Server
-* `mysql-connector-python`
-  Install via:
+- Other dependencies listed in the requirements.txt file
+  Install all Python dependencies by running:
 
   ```bash
-  pip install mysql-connector-python
+  pip install -r requirements.txt
   ```
 
 ---
 
 ## ⚙️ Setup Instructions
 
-1. Update MySQL credentials in `seed.py`
+1. Update MySQL credentials in .env
 2. Run the seeding script:
 
    ```bash
    python seed.py
    ```
 3. Run any of the data processing scripts to stream or analyze users.
-
----
-
-## 📜 License
-
-This project is part of ALX portfolio practice and is open for educational use.
