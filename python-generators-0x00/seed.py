@@ -2,6 +2,15 @@ import csv
 import uuid
 import mysql.connector
 from mysql.connector import errorcode
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+db_host = os.getenv("DB_HOST", "localhost")
+db_user = os.getenv("DB_USER")
+db_pass = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME", "ALX_prodev")
 
 def load_csv_data(filepath):
     with open(filepath, newline='') as csvfile:
@@ -15,9 +24,9 @@ def generate_uuid():
 
 def connect_db():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="rootpassword"
+        host= db_host,
+        user= db_user,
+        password= db_pass
     )
 
 def create_database(connection):
@@ -31,10 +40,10 @@ def create_database(connection):
 
 def connect_to_prodev():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="rootpassword",
-        database="ALX_prodev"
+        host=db_host,
+        user=db_user,
+        password=db_pass,
+        database=db_name
     )
 
 def create_table(connection):
