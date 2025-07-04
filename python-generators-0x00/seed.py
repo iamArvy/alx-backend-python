@@ -70,7 +70,7 @@ def insert_data(connection, filepath):
 
     for name, email, age in data:
         # Check for existing entry with same email
-        cursor.execute("SELECT * FROM user_data WHERE email = %s", (email,))
+        cursor.execute("SELECT * FROM user_data WHERE email = %s", (email))
         if cursor.fetchone():
             continue  # Skip duplicates
 

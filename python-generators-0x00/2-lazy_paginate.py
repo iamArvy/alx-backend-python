@@ -1,9 +1,10 @@
-import sqlite3
+from seed import connect_to_prodev
+import sys
 
 def paginate_users(page_size, offset):
-    conn = sqlite3.connect('your_database.db')  # Replace with your DB path
+    conn = connect_to_prodev()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users LIMIT ? OFFSET ?', (page_size, offset))
+    cursor.execute('SELECT * FROM user_data LIMIT %s OFFSET %s', (page_size, offset))
     rows = cursor.fetchall()
     conn.close()
     return rows
@@ -16,3 +17,14 @@ def lazy_paginate(page_size):
             break
         yield page
         offset += page_size
+
+def main():
+    try:
+        for page in lazy_paginate(100):
+            for user in page:
+                print(user)
+    except BrokenPipeError:
+        sys.stderr.close()
+
+if __name__ == '__main__':
+    main()
