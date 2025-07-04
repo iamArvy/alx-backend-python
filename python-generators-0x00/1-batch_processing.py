@@ -1,9 +1,10 @@
-import sqlite3
+from seed import connect_to_prodev
+import sys
 
 def stream_users_in_batches(batch_size):
-    conn = sqlite3.connect('your_database.db')  # Replace with actual DB
+    conn = connect_to_prodev()  # Replace with your actual DB
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users')
+    cursor.execute('SELECT * FROM user_data')
 
     while True:
         batch = cursor.fetchmany(batch_size)
@@ -11,11 +12,21 @@ def stream_users_in_batches(batch_size):
             break
         yield batch
 
-    conn.close()
+    # conn.close()
 
 
 def batch_processing(batch_size):
     for batch in stream_users_in_batches(batch_size):
-        # Filter users over age 25
-        filtered = [user for user in batch if user[2] > 25]  # assuming age is at index 2
-        yield filtered
+        for user in batch:
+            if user[3] > 25:
+                yield user
+
+def main():
+    try:
+        for user in batch_processing(50):
+            print(user)
+    except BrokenPipeError:
+        sys.stderr.close()
+
+if __name__ == '__main__':
+    main()
