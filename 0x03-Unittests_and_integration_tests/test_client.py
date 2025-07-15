@@ -10,6 +10,7 @@ from unittest.mock import PropertyMock, Mock
 from parameterized import parameterized_class
 from fixtures import TEST_PAYLOAD
 
+
 class TestGithubOrgClient(unittest.TestCase):
     """Test cases for GithubOrgClient"""
 
@@ -27,14 +28,12 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(client.org, test_payload)
         mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
 
-
     def test_public_repos_url(self):
         """Test that _public_repos_url returns correct URL from mocked org"""
         with patch.object(GithubOrgClient, "org", new_callable=PropertyMock) as mock_org:
             mock_org.return_value = {"repos_url": "https://api.github.com/orgs/test/repos"}
             client = GithubOrgClient("test")
             self.assertEqual(client._public_repos_url, "https://api.github.com/orgs/test/repos")
-
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
@@ -75,8 +74,6 @@ class TestGithubOrgClient(unittest.TestCase):
         "apache2_repos": TEST_PAYLOAD[0][3]
     }
 ])
-
-
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration test class for GithubOrgClient"""
     org_payload = {}
@@ -107,6 +104,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def tearDownClass(cls):
         """Stop patching requests.get"""
         cls.get_patcher.stop()
+
 
 if __name__ == "__main__":
     unittest.main()
