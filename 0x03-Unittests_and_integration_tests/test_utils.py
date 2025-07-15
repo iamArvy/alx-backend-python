@@ -63,7 +63,6 @@ class TestMemoize(unittest.TestCase):
                 """Returns a constant integer"""
                 return 42
 
-
             @memoize
             def a_property(self):
                 """Returns result of a_method, memoized"""
