@@ -22,6 +22,7 @@ class TestAccessNestedMap(unittest.TestCase):
         """Test access_nested_map returns correct value"""
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
+
     @parameterized.expand([
         ({}, ("a",), 'a'),
         ({"a": 1}, ("a", "b"), 'b'),
@@ -31,6 +32,7 @@ class TestAccessNestedMap(unittest.TestCase):
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
         self.assertEqual(str(context.exception), f"'{expected_msg}'")
+
 
 class TestGetJson(unittest.TestCase):
     """Test cases for get_json"""
@@ -54,6 +56,7 @@ class TestGetJson(unittest.TestCase):
 class TestMemoize(unittest.TestCase):
     """Test cases for memoize decorator"""
 
+
     def test_memoize(self):
         """Test that memoize caches method results"""
         class TestClass:
@@ -61,16 +64,19 @@ class TestMemoize(unittest.TestCase):
                 """Returns a constant integer"""
                 return 42
 
+
             @memoize
             def a_property(self):
                 """Returns result of a_method, memoized"""
                 return self.a_method()
+
 
         with patch.object(TestClass, "a_method", return_value=42) as mock_method:
             test_obj = TestClass()
             self.assertEqual(test_obj.a_property, 42)
             self.assertEqual(test_obj.a_property, 42)
             mock_method.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
