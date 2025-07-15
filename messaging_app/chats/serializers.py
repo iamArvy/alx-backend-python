@@ -4,7 +4,10 @@ from .models import User, Conversation, Message
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'bio', 'avatar']
+        fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'bio', 'avatar', 'full_name']
+        
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
