@@ -38,3 +38,5 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response({"error": "You are not a participant in this conversation."},
                             status=status.HTTP_403_FORBIDDEN)
         serializer.save(sender=self.request.user)
+
+# ["filters"]
