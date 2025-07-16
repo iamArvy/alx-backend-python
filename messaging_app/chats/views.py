@@ -1,9 +1,16 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message, User
-from .serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer, UserSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
 
 # Create your views here.
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -12,25 +19,29 @@ class ConversationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Only return conversations where the current user is a participant
         return Conversation.objects.filter(participants=self.request.user).distinct()
 
     def perform_create(self, serializer):
         conversation = serializer.save()
-        # Add current user as a participant (optional)
         conversation.participants.add(self.request.user)
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['conversation']  # Allow filtering by conversation ID
+    search_fields = ['content']          # Allow search by content text
+    ordering_fields = ['timestamp']      # Allow ordering by timestamp
 
     def get_queryset(self):
-        # Filter messages based on conversation_id in query params (optional)
         conversation_id = self.request.query_params.get('conversation')
         if conversation_id:
-            return Message.objects.filter(conversation_id=conversation_id, conversation__participants=self.request.user)
-        return Message.objects.none()  # Optional: don't return all messages for safety
+            return Message.objects.filter(
+                conversation_id=conversation_id,
+                conversation__participants=self.request.user
+            )
+        return Message.objects.none()
 
     def perform_create(self, serializer):
         conversation = serializer.validated_data.get("conversation")
@@ -38,5 +49,3 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response({"error": "You are not a participant in this conversation."},
                             status=status.HTTP_403_FORBIDDEN)
         serializer.save(sender=self.request.user)
-
-# ["filters"]
