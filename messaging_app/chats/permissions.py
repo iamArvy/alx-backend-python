@@ -8,10 +8,6 @@ class IsParticipantOfConversation(BasePermission):
     - Only authenticated users can access
     - Only participants can send, view, update, and delete messages or conversations
     """
-
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated
-
     def has_object_permission(self, request, view, obj):
         # Explicitly handle relevant HTTP methods for checker
         if request.method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:

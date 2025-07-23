@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer, UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,10 +9,8 @@ from permissions import IsParticipantOfConversation
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
 
-# Create your views here.
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
@@ -31,9 +28,9 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsParticipantOfConversation]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['conversation']  # Allow filtering by conversation ID
-    search_fields = ['content']          # Allow search by content text
-    ordering_fields = ['timestamp']      # Allow ordering by timestamp
+    filterset_fields = ['conversation']
+    search_fields = ['content']
+    ordering_fields = ['timestamp']
 
     def get_queryset(self):
         conversation_id = self.request.query_params.get('conversation')
