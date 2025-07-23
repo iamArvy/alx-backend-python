@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer, UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-from permissions import IsParticipantOfConversation
+from .permissions import IsParticipantOfConversation
 from .pagination import MessagePagination
 from .filters import MessageFilter
 
