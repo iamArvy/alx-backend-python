@@ -54,5 +54,5 @@ celerybeat-schedule
 .pytest_cache/
 
 # Docker files
-*.log
+# *.log
 docker-compose.override.yml
