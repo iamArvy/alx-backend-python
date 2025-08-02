@@ -19,23 +19,9 @@ def delete_user(request):
         logout(request)  # Log out before deletion to avoid issues
         user.delete()  # This triggers the post_delete signal
         return HttpResponse(status=204)
-
-
-def thread_view(request, message_id):
-    message = get_object_or_404(
-        Message.objects.select_related('sender', 'receiver'),
-        pk=message_id
-    )
-    return render(request, 'messaging/thread.html', {
-        'root_message': message,
-        'thread': message.get_thread()
-    })
-
-def inbox_view(request):
-    conversations = Message.objects.get_user_conversations(request.user)
-    return render(request, 'messaging/inbox.html', {
-        'conversations': conversations
-    })
+    else:
+        # Always return an HttpResponse, even if not POST
+        return HttpResponse(status=405)
 
 
 @login_required
@@ -73,7 +59,7 @@ def inbox_view(request):
 def unread_messages_api(request):
     """JSON API endpoint for unread messages with explicit optimizations"""
     # Using the custom manager with explicit field selection
-    messages = Message.unread.unread_for_user(request.user).only(
+    messages = Message.unread_messages.unread_for_user(request.user).only(
         'id',
         'content',
         'timestamp',
@@ -107,7 +93,7 @@ def cached_thread_view(request, thread_id):
     data = {
         'messages': [
             {
-                'id': msg.id,
+                'id': msg.pk,
                 'sender': msg.sender.username,
                 'content': msg.content,
                 'timestamp': msg.timestamp.isoformat()

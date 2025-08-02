@@ -53,7 +53,14 @@ class MessagingTests(TestCase):
             Notification.objects.count(),
             initial_count + 1
         )
-        self.assertEqual(
-            Notification.objects.first().user,
-            self.receiver
-        )
+        notification = Notification.objects.first()
+        self.assertIsNotNone(notification, "No Notification object found")
+        if notification:
+            self.assertEqual(
+                notification.message,
+                new_message
+            )
+            self.assertEqual(
+                notification.user,
+                self.receiver
+            )

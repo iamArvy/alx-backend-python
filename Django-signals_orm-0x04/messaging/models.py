@@ -18,10 +18,8 @@ class Message(models.Model):
         blank=True,
         related_name='replies'
     )
-    edited = models.BooleanField(default=False)
-    last_edited = models.DateTimeField(null=True, blank=True)
-    edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='edited_messages')
-
+    updated_at = models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     class Meta:
         ordering = ['-timestamp']
         indexes = [
@@ -33,13 +31,15 @@ class Message(models.Model):
     def __str__(self):
         return f"Message from {self.sender} to {self.receiver}"
 
-    objects = MessageManager()  # Custom manager
-    unread = UnreadMessagesManager() # Custom manager for unread messages
+    # Custom manager for messages
+    objects = MessageManager()
+    # Custom manager for unread messages
+    unread_messages = UnreadMessagesManager()
     
     def get_thread(self):
         """Get complete thread with optimized queries"""
         return Message.objects.filter(
-            Q(id=self.id) | Q(parent_message=self.id)
+            Q(id=self.pk) | Q(parent_message=self.pk)
         ).select_related(
             'sender', 'receiver', 'edited_by'
         ).order_by('timestamp')
@@ -48,14 +48,13 @@ class MessageHistory(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
     content = models.TextField()
     edited_at = models.DateTimeField(auto_now_add=True)
-    edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     
     class Meta:
         ordering = ['-edited_at']
         verbose_name_plural = 'Message Histories'
 
     def __str__(self):
-        return f"Version of {self.message} edited by {self.edited_by} at {self.edited_at}"
+        return f"Version of {self.message} edited at {self.edited_at}"
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
@@ -64,4 +63,4 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Notification for {self.user} about message {self.message.id}"
+        return f"Notification for {self.user} about message {self.message.pk}"
