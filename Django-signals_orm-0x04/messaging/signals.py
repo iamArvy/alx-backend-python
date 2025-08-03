@@ -18,7 +18,7 @@ def create_message_notification(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=Message)
 def log_message_edit(sender, instance, **kwargs):
-    if instance.pk:  # Only for existing messages
+    if instance.pk:
         try:
             original = Message.objects.get(pk=instance.pk)
             if original.content != instance.content:  # Content changed
@@ -39,12 +39,8 @@ def cleanup_user_data(sender, instance, **kwargs):
     """
     Explicitly clean up related data that wouldn't be caught by CASCADE
     """
-    # Delete all messages where user was sender or receiver
     Message.objects.filter(sender=instance).delete()
     Message.objects.filter(receiver=instance).delete()
     
-    # Delete all notifications for the user
     Notification.objects.filter(user=instance).delete()
-    
-    # Clear user reference from message history (SET_NULL would handle this)
     MessageHistory.objects.filter(edited_by=instance).update(edited_by=None)
