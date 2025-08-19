@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define Python version (adjust if needed)
+        PYTHON = "python3"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git(
+                    url: 'https://github.com/your-usernam/messaging-app.git',
+                    branch: 'main',
+                    credentialsId: 'github-credentials-id' // Add this in Jenkins Credentials
+                )
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    ${PYTHON} -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pytest --junitxml=pytest-report.xml
+                '''
+            }
+        }
+
+        stage('Publish Test Report') {
+            steps {
+                junit 'pytest-report.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Cleaning up..."
+            sh 'rm -rf venv'
+        }
+        success {
+            echo "Build and tests completed successfully!"
+        }
+        failure {
+            echo "Build failed. Check test results."
+        }
+    }
+}
