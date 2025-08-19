@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  type: ClusterIP
+  selector:
+    app: django
+    version: blue   # 🔹 initially points to blue, can be switched to green
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
