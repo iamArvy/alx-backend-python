@@ -1,0 +1,39 @@
+#!/bin/bash
+# kubctl-0x01 - Scale Django Deployment and test performance
+
+DEPLOYMENT_NAME="django-messaging-deployment"
+SERVICE_NAME="django-messaging-service"
+NAMESPACE="default"
+
+echo "=== Scaling Django Deployment ==="
+kubectl scale deployment $DEPLOYMENT_NAME --replicas=3 -n $NAMESPACE
+
+echo "=== Waiting for pods to be ready... ==="
+kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+
+echo "=== Verifying running pods ==="
+kubectl get pods -n $NAMESPACE -l app=django-messaging
+
+echo "=== Port-forwarding Service to localhost:8000 for testing ==="
+kubectl port-forward svc/$SERVICE_NAME 8000:8000 -n $NAMESPACE &
+PORT_FORWARD_PID=$!
+sleep 5  # wait a bit for port-forward to be ready
+
+echo "=== Running load test with wrk ==="
+if ! command -v wrk &>/dev/null; then
+    echo "Error: wrk is not installed. Please install it: https://github.com/wg/wrk"
+else
+    # Run wrk for 30 seconds with 100 connections and 10 threads
+    wrk -t10 -c100 -d30s http://localhost:8000/
+fi
+
+echo "=== Monitoring resource usage (kubectl top) ==="
+if ! kubectl top pods -n $NAMESPACE; then
+    echo "Metrics server not installed. Install with:"
+    echo "kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
+fi
+
+# Kill port-forward process
+kill $PORT_FORWARD_PID 2>/dev/null
+
+echo "=== Script completed successfully! ==="
